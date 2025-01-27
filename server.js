@@ -1,26 +1,26 @@
-
+// server.js
 const express = require('express');
-const dotenv = require('dotenv');
 const fetch = require('node-fetch');
-
-// Load environment variables from .env file
-dotenv.config();
+require('dotenv').config();
 
 const app = express();
-const PORT = process.env.PORT || 3000;
+const port = process.env.PORT || 3000;
 
-// Adafruit IO credentials from environment variables
-const AIO_USERNAME = process.env.AIO_USERNAME;
-const AIO_KEY = process.env.AIO_KEY;
-const BASE_URL = `https://io.adafruit.com/api/v2/${AIO_USERNAME}/feeds`;
-
-// Middleware to parse JSON
+// Middleware
 app.use(express.json());
 
-// Route to toggle feed value
-app.post('/toggle-feed/:feed/:value', async (req, res) => {
-    const { feed, value } = req.params;
-    
+// API endpoint to toggle the feed on Adafruit IO
+app.post('/toggle-feed', async (req, res) => {
+    const { feed, value } = req.body;
+
+    if (!feed || (value !== 0 && value !== 1)) {
+        return res.status(400).send('Invalid input');
+    }
+
+    const AIO_USERNAME = process.env.AIO_USERNAME;
+    const AIO_KEY = process.env.AIO_KEY;
+    const BASE_URL = `https://io.adafruit.com/api/v2/${AIO_USERNAME}/feeds`;
+
     try {
         const response = await fetch(`${BASE_URL}/${feed}/data`, {
             method: 'POST',
@@ -32,22 +32,18 @@ app.post('/toggle-feed/:feed/:value', async (req, res) => {
         });
 
         if (!response.ok) {
-            throw new Error(`Failed to update feed. Status: ${response.status}`);
+            throw new Error(`Failed to update ${feed}. Status: ${response.status}`);
         }
 
-        res.status(200).json({ message: `${feed} updated to ${value}` });
+        console.log(`${feed} updated to ${value}`);
+        res.status(200).send(`${feed} updated to ${value}`);
     } catch (error) {
-        console.error(error);
-        res.status(500).json({ error: error.message });
+        console.error('Error:', error);
+        res.status(500).send('Server error');
     }
 });
 
-// Test route
-app.get('/', (req, res) => {
-    res.send('Backend server is running!');
-});
-
 // Start the server
-app.listen(PORT, () => {
-    console.log(`Server is running on port ${PORT}`);
+app.listen(port, () => {
+    console.log(`Server running at http://localhost:${port}`);
 });
