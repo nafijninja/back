@@ -1,10 +1,9 @@
-// server.js
 const express = require('express');
 const fetch = require('node-fetch');
 require('dotenv').config();
 
 const app = express();
-const port = process.env.PORT || 3000;
+const port = process.env.PORT || 8080;
 
 // Middleware
 app.use(express.json());
@@ -35,12 +34,16 @@ app.post('/toggle-feed', async (req, res) => {
             throw new Error(`Failed to update ${feed}. Status: ${response.status}`);
         }
 
-        console.log(`${feed} updated to ${value}`);
         res.status(200).send(`${feed} updated to ${value}`);
     } catch (error) {
         console.error('Error:', error);
         res.status(500).send('Server error');
     }
+});
+
+// Test route for checking server status
+app.get('/', (req, res) => {
+    res.send('Backend is live!');
 });
 
 // Start the server
