@@ -1,8 +1,12 @@
 const express = require('express');
 const fetch = require('node-fetch');
 require('dotenv').config();
+const http = require('http');
+const socketIo = require('socket.io');
 
 const app = express();
+const server = http.createServer(app); // HTTP server তৈরি করা হচ্ছে
+const io = socketIo(server); // Socket.IO সেটআপ
 const port = process.env.PORT || 8080;
 
 // Middleware
@@ -34,6 +38,9 @@ app.post('/toggle-feed', async (req, res) => {
             throw new Error(`Failed to update ${feed}. Status: ${response.status}`);
         }
 
+        // Emit the feed update to connected clients
+        io.emit('feed-updated', { feed, value });
+
         res.status(200).send(`${feed} updated to ${value}`);
     } catch (error) {
         console.error('Error:', error);
@@ -46,7 +53,16 @@ app.get('/', (req, res) => {
     res.send('Backend is live!');
 });
 
+// Handle WebSocket connections
+io.on('connection', (socket) => {
+    console.log('Client connected:', socket.id);
+
+    socket.on('disconnect', () => {
+        console.log('Client disconnected:', socket.id);
+    });
+});
+
 // Start the server
-app.listen(port, () => {
+server.listen(port, () => {
     console.log(`Server running at http://localhost:${port}`);
 });
