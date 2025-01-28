@@ -5,8 +5,8 @@ const http = require('http');
 const socketIo = require('socket.io');
 
 const app = express();
-const server = http.createServer(app); // HTTP server তৈরি করা হচ্ছে
-const io = socketIo(server); // Socket.IO সেটআপ
+const server = http.createServer(app); // HTTP server
+const io = socketIo(server); // Socket.IO setup
 const port = process.env.PORT || 8080;
 
 // Middleware
