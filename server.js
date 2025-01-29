@@ -1,16 +1,18 @@
 const express = require('express');
 const fetch = require('node-fetch');
+const cors = require('cors'); // Enable CORS
 require('dotenv').config();
 const http = require('http');
 const socketIo = require('socket.io');
 
 const app = express();
-const server = http.createServer(app); // HTTP server
-const io = socketIo(server); // Socket.IO setup
+const server = http.createServer(app);
+const io = socketIo(server);
 const port = process.env.PORT || 8080;
 
 // Middleware
 app.use(express.json());
+app.use(cors()); // Allow cross-origin requests
 
 // API endpoint to toggle the feed on Adafruit IO
 app.post('/toggle-feed', async (req, res) => {
