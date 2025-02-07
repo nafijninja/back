@@ -23,6 +23,11 @@ const BASE_URL = `https://io.adafruit.com/api/v2/${AIO_USERNAME}/feeds`;
 app.use(cors());
 app.use(express.json());
 
+// ✅ Fix: Add root route to confirm backend is running
+app.get('/', (req, res) => {
+    res.send('<h2>Backend is live. Created by Nafij YT.</h2>');
+});
+
 // API to toggle feed state
 app.post('/toggle-feed', async (req, res) => {
     const { feed, value } = req.body;
